@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pesewa.com</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../icons/icon-72x72.png" type="image/png">
+    <link rel="apple-touch-icon" href="../icons/icon-152x152.png">
+    <meta name="theme-color" content="#001F3F">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.11.0/css/flag-icons.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo">₵</div>
+                <h1>Pesewa<span>.com</span></h1>
+                <div class="country-selector">
+                    <select id="countrySelect" class="country-dropdown">
+                        <option value="KE" data-currency="KSh">🇰🇪 Kenya</option>
+                        <option value="UG" data-currency="UGX">🇺🇬 Uganda</option>
+                        <option value="TZ" data-currency="TZS">🇹🇿 Tanzania</option>
+                        <option value="RW" data-currency="RWF">🇷🇼 Rwanda</option>
+                        <option value="GH" data-currency="GHS" selected>🇬🇭 Ghana</option>
+                        <option value="NG" data-currency="NGN">🇳🇬 Nigeria</option>
+                        <option value="ZA" data-currency="ZAR">🇿🇦 South Africa</option>
+                    </select>
+                    <span id="currentCurrency" class="currency-display">GHS</span>
+                </div>
+            </div>
+            <div class="user-menu">
+                <button class="btn-icon" id="notificationsBtn">
+                    <span class="icon">🔔</span>
+                    <span class="badge" id="notificationCount">2</span>
+                </button>
+                <div class="user-profile">
+                    <span class="user-avatar">JD</span>
+                    <span class="user-name">John Doe</span>
+                </div>
+                <button class="btn-icon" id="menuBtn">
+                    <span class="icon">☰</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="main-content">
+            <!-- Welcome Banner -->
+            <section class="welcome-banner">
+                <div class="welcome-content">
+                    <h2>Welcome back, John!</h2>
+                    <p>Your trusted micro-lending dashboard</p>
+                    <div class="user-stats">
+                        <div class="stat-badge">
+                            <span class="stat-label">Role</span>
+                            <span class="stat-value">Borrower & Lender</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-label">Tier</span>
+                            <span class="stat-value">Premium</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-label">Rating</span>
+                            <span class="stat-value">⭐ 4.5/5</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='borrowing.html'">
+                        <span class="action-icon">📝</span>
+                        Request Loan
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.location.href='lending.html'">
+                        <span class="action-icon">💰</span>
+                        Lend Money
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='groups.html'">
+                        <span class="action-icon">👥</span>
+                        My Groups
+                    </button>
+                </div>
+            </section>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div class="dashboard-column">
+                    <!-- Tier Calculator -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Tier Calculator</h3>
+                            <select id="dashboardTier" class="tier-dropdown">
+                                <option value="basic">Basic (≤₵1,500/week)</option>
+                                <option value="premium" selected>Premium (≤₵5,000/week)</option>
+                                <option value="super">Super (≤₵20,000/week)</option>
+                            </select>
+                        </div>
+                        <div class="calculator-simple">
+                            <div class="calc-input">
+                                <label for="dashboardAmount">Loan Amount (₵)</label>
+                                <input type="range" id="dashboardAmount" min="5" max="5000" value="1000" step="5">
+                                <div class="amount-display">
+                                    <input type="number" id="dashboardAmountInput" value="1000" min="5" max="5000">
+                                    <span>GHS</span>
+                                </div>
+                            </div>
+                            <div class="calc-results">
+                                <div class="calc-result">
+                                    <span class="result-label">Total Repayment</span>
+                                    <span class="result-value">₵1,100</span>
+                                </div>
+                                <div class="calc-result">
+                                    <span class="result-label">Weekly Interest</span>
+                                    <span class="result-value">₵100 (10%)</span>
+                                </div>
+                                <div class="calc-result">
+                                    <span class="result-label">Daily Payment</span>
+                                    <span class="result-value">₵157.14</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>7-day repayment period. Daily partial payments allowed.</small>
+                        </div>
+                    </section>
+
+                    <!-- Active Loans -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Active Loans</h3>
+                            <span class="badge">2 Active</span>
+                        </div>
+                        <div class="loans-list">
+                            <div class="loan-item">
+                                <div class="loan-icon">🚌</div>
+                                <div class="loan-details">
+                                    <h4>PesewaFare</h4>
+                                    <p class="loan-amount">₵500</p>
+                                    <p class="loan-status overdue">Due in 2 days</p>
+                                </div>
+                                <div class="loan-action">
+                                    <button class="btn btn-sm">Repay</button>
+                                </div>
+                            </div>
+                            <div class="loan-item">
+                                <div class="loan-icon">⚡</div>
+                                <div class="loan-details">
+                                    <h4>PesewaElectricity</h4>
+                                    <p class="loan-amount">₵1,200</p>
+                                    <p class="loan-status">Due in 5 days</p>
+                                </div>
+                                <div class="loan-action">
+                                    <button class="btn btn-sm btn-outline">View</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="borrowing.html" class="link">View all loans →</a>
+                        </div>
+                    </section>
+
+                    <!-- Groups Overview -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>My Groups</h3>
+                            <span class="badge">3/4 Groups</span>
+                        </div>
+                        <div class="groups-list">
+                            <div class="group-item">
+                                <div class="group-icon">👥</div>
+                                <div class="group-details">
+                                    <h4>Accra Trust Circle</h4>
+                                    <p class="group-members">45 members</p>
+                                    <div class="group-tags">
+                                        <span class="tag">Premium</span>
+                                        <span class="tag">Active</span>
+                                    </div>
+                                </div>
+                                <div class="group-action">
+                                    <button class="btn-icon">💬</button>
+                                </div>
+                            </div>
+                            <div class="group-item">
+                                <div class="group-icon">👥</div>
+                                <div class="group-details">
+                                    <h4>Family Support Group</h4>
+                                    <p class="group-members">12 members</p>
+                                    <div class="group-tags">
+                                        <span class="tag">Basic</span>
+                                        <span class="tag">Family</span>
+                                    </div>
+                                </div>
+                                <div class="group-action">
+                                    <button class="btn-icon">💬</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-outline" onclick="window.location.href='groups.html'">Join New Group</button>
+                            <button class="btn btn-sm" onclick="window.location.href='groups.html#create'">Create Group</button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column -->
+                <div class="dashboard-column">
+                    <!-- Financial Overview -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Financial Overview</h3>
+                            <span class="period-selector">
+                                <select>
+                                    <option>This Week</option>
+                                    <option>This Month</option>
+                                    <option selected>Last 30 Days</option>
+                                </select>
+                            </span>
+                        </div>
+                        <div class="financial-stats">
+                            <div class="financial-stat">
+                                <span class="stat-label">Total Lent</span>
+                                <span class="stat-value positive">₵8,500</span>
+                                <span class="stat-change">+15% from last month</span>
+                            </div>
+                            <div class="financial-stat">
+                                <span class="stat-label">Total Borrowed</span>
+                                <span class="stat-value">₵3,200</span>
+                                <span class="stat-change">-5% from last month</span>
+                            </div>
+                            <div class="financial-stat">
+                                <span class="stat-label">Interest Earned</span>
+                                <span class="stat-value positive">₵850</span>
+                                <span class="stat-change">10% return</span>
+                            </div>
+                            <div class="financial-stat">
+                                <span class="stat-label">Subscription</span>
+                                <span class="stat-value">₵250</span>
+                                <span class="stat-change">Monthly (Premium)</span>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div class="chart-container">
+                                <canvas id="financialChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Recent Activity -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                            <button class="btn-icon btn-sm">
+                                <span class="icon">🔄</span>
+                            </button>
+                        </div>
+                        <div class="activity-feed">
+                            <div class="activity-item">
+                                <div class="activity-icon success">✓</div>
+                                <div class="activity-content">
+                                    <p>Loan of ₵500 repaid to Kwame</p>
+                                    <span class="activity-time">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">💰</div>
+                                <div class="activity-content">
+                                    <p>Lent ₵1,200 for electricity to Ama</p>
+                                    <span class="activity-time">Yesterday</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">👥</div>
+                                <div class="activity-content">
+                                    <p>Joined "Tech Community Group"</p>
+                                    <span class="activity-time">2 days ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">⭐</div>
+                                <div class="activity-content">
+                                    <p>Received 5-star rating from Yaw</p>
+                                    <span class="activity-time">3 days ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon warning">⚠</div>
+                                <div class="activity-content">
+                                    <p>Upcoming subscription renewal</p>
+                                    <span class="activity-time">5 days from now</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="#" class="link">View all activity →</a>
+                        </div>
+                    </section>
+
+                    <!-- Quick Access -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Quick Access</h3>
+                        </div>
+                        <div class="quick-access-grid">
+                            <a href="ledger.html" class="quick-access-item">
+                                <span class="access-icon">📒</span>
+                                <span class="access-label">My Ledger</span>
+                            </a>
+                            <a href="lending.html#borrowers" class="quick-access-item">
+                                <span class="access-icon">👤</span>
+                                <span class="access-label">My Borrowers</span>
+                            </a>
+                            <a href="#" class="quick-access-item">
+                                <span class="access-icon">📊</span>
+                                <span class="access-label">Reports</span>
+                            </a>
+                            <a href="#" class="quick-access-item">
+                                <span class="access-icon">⚙️</span>
+                                <span class="access-label">Settings</span>
+                            </a>
+                            <a href="blacklist.html" class="quick-access-item">
+                                <span class="access-icon">⚫</span>
+                                <span class="access-label">Blacklist</span>
+                            </a>
+                            <a href="debt-collectors.html" class="quick-access-item">
+                                <span class="access-icon">🛡️</span>
+                                <span class="access-label">Debt Collectors</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- Subscription Status -->
+                    <section class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Subscription Status</h3>
+                            <span class="status-badge active">Active</span>
+                        </div>
+                        <div class="subscription-details">
+                            <div class="subscription-info">
+                                <p><strong>Premium Tier</strong></p>
+                                <p>Monthly: ₵250</p>
+                                <p>Next renewal: 15 Dec 2024</p>
+                                <p>Max loan per week: ₵5,000</p>
+                            </div>
+                            <div class="subscription-actions">
+                                <button class="btn btn-sm">Upgrade</button>
+                                <button class="btn btn-sm btn-outline">Change Plan</button>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>Includes access to premium groups and higher lending limits</small>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Category Performance -->
+            <section class="dashboard-card full-width">
+                <div class="card-header">
+                    <h3>Category Performance</h3>
+                    <div class="view-options">
+                        <button class="btn-view active">As Lender</button>
+                        <button class="btn-view">As Borrower</button>
+                    </div>
+                </div>
+                <div class="categories-performance">
+                    <div class="category-performance-item">
+                        <div class="category-header">
+                            <span class="category-icon">🚌</span>
+                            <span class="category-name">PesewaFare</span>
+                        </div>
+                        <div class="performance-stats">
+                            <span class="stat">₵3,200 lent</span>
+                            <span class="stat">24 loans</span>
+                            <span class="stat">98% repayment</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="bar-fill" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="category-performance-item">
+                        <div class="category-header">
+                            <span class="category-icon">⚡</span>
+                            <span class="category-name">Electricity</span>
+                        </div>
+                        <div class="performance-stats">
+                            <span class="stat">₵2,800 lent</span>
+                            <span class="stat">18 loans</span>
+                            <span class="stat">100% repayment</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="bar-fill" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div class="category-performance-item">
+                        <div class="category-header">
+                            <span class="category-icon">🍲</span>
+                            <span class="category-name">PesewaFood</span>
+                        </div>
+                        <div class="performance-stats">
+                            <span class="stat">₵1,500 lent</span>
+                            <span class="stat">15 loans</span>
+                            <span class="stat">95% repayment</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="bar-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="../index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Groups</span>
+            </a>
+            <a href="lending.html" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Lend</span>
+            </a>
+            <a href="borrowing.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">Borrow</span>
+            </a>
+        </nav>
+
+        <!-- Dashboard-specific Modals -->
+        <div class="modal hidden" id="repaymentModal">
+            <div class="modal-content">
+                <h3>Make Repayment</h3>
+                <form id="repaymentForm">
+                    <div class="form-group">
+                        <label>Loan Amount</label>
+                        <div class="amount-display">₵500</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select required>
+                            <option value="">Select method</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="mobile_money">Mobile Money</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount to Pay (₵)</label>
+                        <input type="number" value="500" min="1" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction Reference</label>
+                        <input type="text" placeholder="Enter reference number" required>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-outline" onclick="hideModal(document.getElementById('repaymentModal'))">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="../app.js"></script>
+        <script>
+            // Dashboard-specific JavaScript
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize dashboard calculator
+                const amountSlider = document.getElementById('dashboardAmount');
+                const amountInput = document.getElementById('dashboardAmountInput');
+                const tierSelect = document.getElementById('dashboardTier');
+                
+                function updateDashboardCalculator() {
+                    const amount = parseFloat(amountInput.value);
+                    const interest = amount * 0.10; // 10% interest
+                    const total = amount + interest;
+                    const daily = total / 7;
+                    
+                    // Update results (in a real app, these would update dynamically)
+                    console.log('Dashboard calculator updated:', { amount, interest, total, daily });
+                }
+                
+                amountSlider.addEventListener('input', function() {
+                    amountInput.value = this.value;
+                    updateDashboardCalculator();
+                });
+                
+                amountInput.addEventListener('input', function() {
+                    amountSlider.value = this.value;
+                    updateDashboardCalculator();
+                });
+                
+                tierSelect.addEventListener('change', function() {
+                    const tier = this.value;
+                    let maxAmount = 1500;
+                    
+                    switch(tier) {
+                        case 'premium': maxAmount = 5000; break;
+                        case 'super': maxAmount = 20000; break;
+                    }
+                    
+                    amountSlider.max = maxAmount;
+                    amountInput.max = maxAmount;
+                    updateDashboardCalculator();
+                });
+                
+                // Initialize chart (mock)
+                const chartCanvas = document.getElementById('financialChart');
+                if (chartCanvas.getContext) {
+                    const ctx = chartCanvas.getContext('2d');
+                    // Simple mock chart
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(50, 50, 300, 100);
+                    ctx.fillStyle = '#FF6B6B';
+                    ctx.fillRect(50, 160, 200, 40);
+                }
+                
+                // Handle repayment buttons
+                document.querySelectorAll('.loan-action .btn').forEach(button => {
+                    if (button.textContent === 'Repay') {
+                        button.addEventListener('click', function() {
+                            showModal(document.getElementById('repaymentModal'));
+                        });
+                    }
+                });
+                
+                // Handle form submission
+                document.getElementById('repaymentForm')?.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Repayment submitted successfully! This would connect to payment gateway in production.');
+                    hideModal(document.getElementById('repaymentModal'));
+                });
+            });
+            
+            function showModal(modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function hideModal(modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        </script>
+    </div>
+</body>
+</html>

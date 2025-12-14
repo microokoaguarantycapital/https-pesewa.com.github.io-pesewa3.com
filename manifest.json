@@ -1,0 +1,155 @@
+{
+  "name": "Pesewa.com - Micro-Lending Platform",
+  "short_name": "Pesewa",
+  "description": "Trust-based peer-to-peer emergency micro-lending across Africa. Borrow for urgent utilities from trusted circles.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#001F3F",
+  "theme_color": "#001F3F",
+  "categories": ["finance", "social", "business", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pesewa.com Home Screen"
+    },
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Request Loan",
+      "short_name": "Borrow",
+      "description": "Request a new emergency loan",
+      "url": "/pages/borrowing.html",
+      "icons": [
+        {
+          "src": "/icons/borrow-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Lend Money",
+      "short_name": "Lend",
+      "description": "Lend to your community",
+      "url": "/pages/lending.html",
+      "icons": [
+        {
+          "src": "/icons/lend-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "My Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your account dashboard",
+      "url": "/pages/dashboard.html",
+      "icons": [
+        {
+          "src": "/icons/dashboard-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "web+pesewa",
+      "url": "/index.html?ref=%s"
+    }
+  ],
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "permissions": [
+    "notifications",
+    "background-sync",
+    "periodic-background-sync",
+    "clipboard-write"
+  ],
+  "capture_links": "new-client",
+  "file_handlers": [],
+  "id": "/?source=pwa",
+  "scope": "/",
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "name",
+      "text": "description",
+      "url": "link"
+    }
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

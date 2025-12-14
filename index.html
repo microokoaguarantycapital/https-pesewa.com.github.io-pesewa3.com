@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesewa.com - Global Peer-to-Peer Emergency Micro-Lending Platform</title>
+    <meta name="description" content="Pesewa.com connects trusted communities across Africa for emergency micro-lending. Borrow for specific utilities within trusted groups.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-72x72.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    <meta name="theme-color" content="#001F3F">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-realtime-database.js"></script>
+    <!-- Country Selector CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.11.0/css/flag-icons.min.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Header with Country Selector -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo">₵</div>
+                <h1>Pesewa<span>.com</span></h1>
+                <div class="country-selector">
+                    <select id="countrySelect" class="country-dropdown">
+                        <option value="KE" data-currency="KSh">🇰🇪 Kenya (KSh)</option>
+                        <option value="UG" data-currency="UGX">🇺🇬 Uganda (UGX)</option>
+                        <option value="TZ" data-currency="TZS">🇹🇿 Tanzania (TZS)</option>
+                        <option value="RW" data-currency="RWF">🇷🇼 Rwanda (RWF)</option>
+                        <option value="CD" data-currency="CDF">🇨🇩 Congo (CDF)</option>
+                        <option value="BI" data-currency="BIF">🇧🇮 Burundi (BIF)</option>
+                        <option value="NG" data-currency="NGN">🇳🇬 Nigeria (NGN)</option>
+                        <option value="GH" data-currency="GHS" selected>🇬🇭 Ghana (GHS)</option>
+                        <option value="ZA" data-currency="ZAR">🇿🇦 South Africa (ZAR)</option>
+                        <option value="SO" data-currency="SOS">🇸🇴 Somalia (SOS)</option>
+                        <option value="SS" data-currency="SSP">🇸🇸 South Sudan (SSP)</option>
+                        <option value="ET" data-currency="ETB">🇪🇹 Ethiopia (ETB)</option>
+                    </select>
+                    <span id="currentCurrency" class="currency-display">GHS</span>
+                </div>
+            </div>
+            <div class="user-menu">
+                <button class="btn-icon" id="notificationsBtn">
+                    <span class="icon">🔔</span>
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="btn btn-outline" id="loginBtn">Login</button>
+                <button class="btn-icon" id="menuBtn">
+                    <span class="icon">☰</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section with 10 Category Cards -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h2>Emergency Micro-Lending in Trusted Circles Across Africa</h2>
+                    <p>Borrow for urgent needs from people you know. Lend to your community and earn 10% weekly interest. Join via referral only.</p>
+                    <div class="hero-buttons">
+                        <a href="#register" class="btn btn-primary">Get Started</a>
+                        <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+                        <a href="pages/dashboard.html" class="btn btn-outline">Go to Dashboard</a>
+                    </div>
+                </div>
+                <div class="hero-categories">
+                    <div class="categories-grid">
+                        <!-- 10 Category Cards with proper names and taglines -->
+                        <div class="category-card" data-category="fare">
+                            <div class="card-icon">🚌</div>
+                            <h3>PesewaFare</h3>
+                            <p class="tagline">Move on, don't stall—borrow for your journey.</p>
+                            <span class="card-badge">Transport</span>
+                        </div>
+                        <div class="category-card" data-category="data">
+                            <div class="card-icon">📱</div>
+                            <h3>PesewaData</h3>
+                            <p class="tagline">Stay connected, stay informed—borrow when your bundle runs out.</p>
+                            <span class="card-badge">Airtime/Data</span>
+                        </div>
+                        <div class="category-card" data-category="gas">
+                            <div class="card-icon">🔥</div>
+                            <h3>PesewaCookingGas</h3>
+                            <p class="tagline">Cook with confidence—borrow when your gas is low.</p>
+                            <span class="card-badge">Cooking Gas</span>
+                        </div>
+                        <div class="category-card" data-category="food">
+                            <div class="card-icon">🍲</div>
+                            <h3>PesewaFood</h3>
+                            <p class="tagline">Don't sleep hungry when paycheck is delayed—borrow and eat today.</p>
+                            <span class="card-badge">Food</span>
+                        </div>
+                        <div class="category-card" data-category="credo">
+                            <div class="card-icon">🔧</div>
+                            <h3>Pesewacredo</h3>
+                            <p class="tagline">Fix it fast—borrow for urgent repairs or tools.</p>
+                            <span class="card-badge">Repairs/Tools</span>
+                        </div>
+                        <div class="category-card" data-category="water">
+                            <div class="card-icon">💧</div>
+                            <h3>PesewaWaterBill</h3>
+                            <p class="tagline">Stay hydrated—borrow for water needs or bills.</p>
+                            <span class="card-badge">Water</span>
+                        </div>
+                        <div class="category-card" data-category="fuel">
+                            <div class="card-icon">⛽</div>
+                            <h3>PesewaBikeCarTuktukFuel</h3>
+                            <p class="tagline">Keep moving—borrow for fuel, no matter your ride.</p>
+                            <span class="card-badge">Fuel</span>
+                        </div>
+                        <div class="category-card" data-category="repair">
+                            <div class="card-icon">🛠️</div>
+                            <h3>PesewaBikeCarTuktukRepair</h3>
+                            <p class="tagline">Fix it quick—borrow for minor repairs and keep going.</p>
+                            <span class="card-badge">Vehicle Repair</span>
+                        </div>
+                        <div class="category-card" data-category="medicine">
+                            <div class="card-icon">💊</div>
+                            <h3>PesewaMedicine</h3>
+                            <p class="tagline">Health first—borrow for urgent medicines.</p>
+                            <span class="card-badge">Medicine</span>
+                        </div>
+                        <div class="category-card" data-category="electricity">
+                            <div class="card-icon">⚡</div>
+                            <h3>PesewaElectricityTokens</h3>
+                            <p class="tagline">Stay lit, stay powered—borrow tokens when you need it.</p>
+                            <span class="card-badge">Electricity</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Stats -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-value" id="activeGroups">3,500+</div>
+                    <div class="stat-label">Active Groups</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="weeklyLent"><span class="currency-symbol">₵</span>250,000+</div>
+                    <div class="stat-label">Lent This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">99.2%</div>
+                    <div class="stat-label">Repayment Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">< 10 min</div>
+                    <div class="stat-label">Avg. Disbursement</div>
+                </div>
+            </section>
+
+            <!-- Registration Section with Enhanced Forms -->
+            <section class="registration-section" id="register">
+                <h2>Join Pesewa.com - Choose Your Role</h2>
+                <p class="section-subtitle">Maximize your financial flexibility - Be both a Borrower and Lender</p>
+                
+                <div class="role-toggle">
+                    <div class="toggle-container">
+                        <button class="toggle-btn active" id="toggleBorrower">Borrower</button>
+                        <button class="toggle-btn" id="toggleLender">Lender</button>
+                        <button class="toggle-btn" id="toggleBoth">Both Roles</button>
+                    </div>
+                </div>
+
+                <!-- Combined Registration Form -->
+                <div class="form-container" id="registrationForm">
+                    <h3 id="formTitle">Registration Form</h3>
+                    <form id="combinedRegistrationForm">
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h4>Basic Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name *</label>
+                                    <input type="text" id="fullName" required placeholder="John Doe">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phoneNumber">Phone Number *</label>
+                                    <input type="tel" id="phoneNumber" required placeholder="+233 24 000 0000">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email (Optional)</label>
+                                    <input type="email" id="email" placeholder="john@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="location">Location *</label>
+                                    <input type="text" id="location" required placeholder="City, Region">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="country">Country *</label>
+                                    <select id="country" required>
+                                        <option value="">Select Country</option>
+                                        <option value="KE">Kenya</option>
+                                        <option value="UG">Uganda</option>
+                                        <option value="TZ">Tanzania</option>
+                                        <option value="RW">Rwanda</option>
+                                        <option value="CD">Congo</option>
+                                        <option value="BI">Burundi</option>
+                                        <option value="NG">Nigeria</option>
+                                        <option value="GH" selected>Ghana</option>
+                                        <option value="ZA">South Africa</option>
+                                        <option value="SO">Somalia</option>
+                                        <option value="SS">South Sudan</option>
+                                        <option value="ET">Ethiopia</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Referrers/Guarantors -->
+                        <div class="form-section">
+                            <h4>Referrers/Guarantors (Required for Trust Verification)</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="referrer1">Referrer 1 *</label>
+                                    <input type="text" id="referrer1" required placeholder="Full Name">
+                                    <input type="tel" id="referrer1Phone" required placeholder="Phone Number" class="referrer-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="referrer2">Referrer 2 *</label>
+                                    <input type="text" id="referrer2" required placeholder="Full Name">
+                                    <input type="tel" id="referrer2Phone" required placeholder="Phone Number" class="referrer-phone">
+                                </div>
+                            </div>
+                            <p class="form-note">Lenders will verify these referrers before approving your registration.</p>
+                        </div>
+
+                        <!-- Role Specific Sections -->
+                        <div class="form-section" id="borrowerSection">
+                            <h4>Borrower Preferences</h4>
+                            <div class="form-group">
+                                <label>Preferred Loan Categories (Select all that apply)</label>
+                                <div class="checkbox-grid">
+                                    <label><input type="checkbox" name="borrowerCategories" value="fare"> PesewaFare (Transport)</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="data"> PesewaData (Airtime/Data)</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="gas"> PesewaCookingGas</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="food"> PesewaFood</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="credo"> Pesewacredo (Repairs)</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="water"> PesewaWaterBill</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="fuel"> PesewaBikeCarTuktukFuel</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="repair"> PesewaBikeCarTuktukRepair</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="medicine"> PesewaMedicine</label>
+                                    <label><input type="checkbox" name="borrowerCategories" value="electricity"> PesewaElectricityTokens</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section hidden" id="lenderSection">
+                            <h4>Lender Configuration</h4>
+                            <div class="form-group">
+                                <label for="tierSelection">Select Your Tier *</label>
+                                <select id="tierSelection" required>
+                                    <option value="">Choose tier</option>
+                                    <option value="basic">Basic Tier (≤1,500/week) - Lender: 50/month</option>
+                                    <option value="premium">Premium Tier (≤5,000/week) - Lender: 250/month</option>
+                                    <option value="super">Super Tier (≤20,000/week) - Lender: 1,000/month</option>
+                                </select>
+                                <div class="tier-details" id="tierDetails">
+                                    <div class="tier-info basic-tier">
+                                        <h5>Basic Tier Details</h5>
+                                        <ul>
+                                            <li>Max loan: <span class="currency-amount">1,500</span>/week</li>
+                                            <li>No borrower subscription</li>
+                                            <li>Lender subscription: 50/month, 250/bi-annual, 500/annual</li>
+                                            <li>No CRB check required</li>
+                                        </ul>
+                                    </div>
+                                    <div class="tier-info premium-tier hidden">
+                                        <h5>Premium Tier Details</h5>
+                                        <ul>
+                                            <li>Max loan: <span class="currency-amount">5,000</span>/week</li>
+                                            <li>Borrower yearly subscription required</li>
+                                            <li>Lender subscription: 250/month, 1,500/bi-annual, 2,500/annual</li>
+                                            <li>No CRB check required</li>
+                                        </ul>
+                                    </div>
+                                    <div class="tier-info super-tier hidden">
+                                        <h5>Super Tier Details</h5>
+                                        <ul>
+                                            <li>Max loan: <span class="currency-amount">20,000</span>/week</li>
+                                            <li>Borrower subscription + CRB check required</li>
+                                            <li>Lender subscription: 1,000/month, 5,000/bi-annual, 8,500/annual</li>
+                                            <li>CRB verification required</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Loan Categories You Offer (Checkboxes for lenders)</label>
+                                <div class="checkbox-grid">
+                                    <label><input type="checkbox" name="lenderCategories" value="all" id="selectAllCategories"> Select All Categories</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="fare"> PesewaFare</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="data"> PesewaData</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="gas"> PesewaCookingGas</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="food"> PesewaFood</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="credo"> Pesewacredo</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="water"> PesewaWaterBill</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="fuel"> PesewaBikeCarTuktukFuel</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="repair"> PesewaBikeCarTuktukRepair</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="medicine"> PesewaMedicine</label>
+                                    <label><input type="checkbox" name="lenderCategories" value="electricity"> PesewaElectricityTokens</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subscription Payment Method -->
+                        <div class="form-section hidden" id="paymentSection">
+                            <h4>Subscription Payment</h4>
+                            <div class="payment-methods">
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="mpesa" checked>
+                                    <span class="payment-icon">📱</span>
+                                    <span class="payment-text">M-Pesa (Kenya)</span>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="stripe">
+                                    <span class="payment-icon">💳</span>
+                                    <span class="payment-text">Credit/Debit Card</span>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="mobile_money">
+                                    <span class="payment-icon">💰</span>
+                                    <span class="payment-text">Mobile Money</span>
+                                </label>
+                            </div>
+                            <div class="payment-simulation">
+                                <p>Note: This is a simulation for development. In production, real payment integration will be used.</p>
+                            </div>
+                        </div>
+
+                        <!-- Terms Agreement -->
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="agreeTerms" required>
+                                    <span>I agree to the <a href="#" id="termsLink">Terms of Service</a> and <a href="#" id="privacyLink">Privacy Policy</a>. I understand that all transactions occur off-platform and Pesewa.com only provides tracking and reputation services.</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitRegistration">
+                            <span id="submitText">Register as Borrower</span>
+                            <span class="spinner hidden" id="submitSpinner"></span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- How It Works with Groups System -->
+            <section class="how-it-works" id="how-it-works">
+                <h2>How Pesewa.com Works</h2>
+                <p class="section-subtitle">Trust-based groups with referral-only entry and cross-group flexibility</p>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Create or Join Groups</h3>
+                        <p>Create unlimited independent groups or join existing ones via referral only. Each group can have up to 1,000 members. Maximum 4 groups per user.</p>
+                        <ul class="step-features">
+                            <li>Referral-only entry for trust</li>
+                            <li>Real-time group chat</li>
+                            <li>Member list with ratings</li>
+                        </ul>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Choose Your Tier</h3>
+                        <p>Select Basic, Premium, or Super tier. Borrowers get access limits, lenders pay subscriptions. All tiers feature 10% weekly interest, 7-day repayment.</p>
+                        <ul class="step-features">
+                            <li>Basic: ≤1,500/week</li>
+                            <li>Premium: ≤5,000/week</li>
+                            <li>Super: ≤20,000/week</li>
+                        </ul>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Lend or Borrow</h3>
+                        <p>Lenders create personal ledgers per borrower. Borrowers request specific utility loans. Disbursement in under 10 minutes with manual confirmation.</p>
+                        <ul class="step-features">
+                            <li>10 floating category cards</li>
+                            <li>Personal ledgers per lender</li>
+                            <li><10 min disbursement</li>
+                        </ul>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Repay & Build Reputation</h3>
+                        <p>7-day maximum repayment with daily partial payments allowed. Lenders rate borrowers. Build reputation to access more groups and better terms.</p>
+                        <ul class="step-features">
+                            <li>10% weekly interest</li>
+                            <li>Daily payments allowed</li>
+                            <li>Cross-group borrowing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Groups System Details -->
+                <div class="feature-highlight">
+                    <h3>Advanced Groups System</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">👥</div>
+                            <h4>Unlimited Groups</h4>
+                            <p>Create as many groups as you want, each independent with its own members and rules.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔗</div>
+                            <h4>Referral-Only Entry</h4>
+                            <p>Join groups only through referrals from existing members who know you well.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔄</div>
+                            <h4>Group Migration</h4>
+                            <p>Migrate to new groups with good repayment record and new referrals.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h4>Real-Time Chat</h4>
+                            <p>Each group has real-time chat for coordination and trust building.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tiered Calculator Section -->
+            <section class="calculator-section">
+                <h2>Loan Calculator - All Tiers</h2>
+                <p class="section-subtitle">Calculate your loan repayments across all tiers with 10% weekly interest</p>
+                
+                <div class="calculator-controls">
+                    <div class="tier-selector">
+                        <button class="tier-btn active" data-tier="basic">Basic Tier</button>
+                        <button class="tier-btn" data-tier="premium">Premium Tier</button>
+                        <button class="tier-btn" data-tier="super">Super Tier</button>
+                    </div>
+                    
+                    <div class="calculator">
+                        <div class="calculator-inputs">
+                            <div class="form-group">
+                                <label for="loanAmount">Loan Amount (<span id="currencySymbol">₵</span>)</label>
+                                <div class="range-container">
+                                    <input type="range" id="loanAmount" min="5" max="1500" value="500" step="5" class="tier-range">
+                                    <div class="range-labels">
+                                        <span>5</span>
+                                        <span id="maxAmount">1500</span>
+                                    </div>
+                                </div>
+                                <div class="amount-input">
+                                    <input type="number" id="loanAmountInput" value="500" min="5" max="1500">
+                                    <span id="currencyCode">GHS</span>
+                                </div>
+                                <div class="range-info">
+                                    <small>Max for Basic Tier: <span class="currency-amount">1,500</span>/week</small>
+                                    <small>Across all groups combined</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="repaymentDays">Repayment Period (Max 7 days)</label>
+                                <div class="day-selector">
+                                    <button class="day-btn" data-days="1">1 Day</button>
+                                    <button class="day-btn" data-days="3">3 Days</button>
+                                    <button class="day-btn active" data-days="7">7 Days</button>
+                                </div>
+                                <div class="day-input">
+                                    <input type="number" id="repaymentDays" value="7" min="1" max="7">
+                                    <span>days</span>
+                                </div>
+                                <div class="interest-info">
+                                    <small>10% weekly interest (approx 1.43% daily)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calculator-results">
+                            <div class="result-card primary">
+                                <h4>Total Repayment</h4>
+                                <div class="result-amount" id="totalRepayment">
+                                    <span class="currency-symbol">₵</span>
+                                    <span id="totalAmount">550</span>
+                                </div>
+                                <small>Principal + 10% Interest</small>
+                            </div>
+                            <div class="result-card">
+                                <h4>Interest Amount</h4>
+                                <div class="result-amount" id="interestAmount">
+                                    <span class="currency-symbol">₵</span>
+                                    <span id="interestValue">50</span>
+                                </div>
+                                <small>10% of principal</small>
+                            </div>
+                            <div class="result-card">
+                                <h4>Daily Payment</h4>
+                                <div class="result-amount" id="dailyPayment">
+                                    <span class="currency-symbol">₵</span>
+                                    <span id="dailyValue">78.57</span>
+                                </div>
+                                <small>If paid daily</small>
+                            </div>
+                            <div class="result-card">
+                                <h4>Due Date</h4>
+                                <div class="result-date" id="dueDate">
+                                    <span id="dueDay">7</span> days from now
+                                </div>
+                                <small id="exactDate">Exact date shown</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reputation & Accountability System -->
+            <section class="reputation-section">
+                <h2>Reputation & Accountability System</h2>
+                <p class="section-subtitle">Built on trust with transparent ratings and blacklist management</p>
+                
+                <div class="reputation-features">
+                    <div class="reputation-card">
+                        <div class="rep-icon">⭐</div>
+                        <h3>Lender Ratings</h3>
+                        <p>Borrowers are rated by lenders after each transaction (1-5 stars). Ratings are visible on profiles and affect group eligibility.</p>
+                        <div class="rating-example">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">☆</span>
+                            <span class="rating-text">4.0/5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reputation-card warning">
+                        <div class="rep-icon">⚫</div>
+                        <h3>Blacklist System</h3>
+                        <p>Defaulters receive blacklist badges visible platform-wide. Blocks new loans and group entries until cleared by the lender.</p>
+                        <div class="blacklist-badge-example">
+                            <span class="blacklist-badge">BLACKLISTED: ₵500 overdue 14 days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reputation-card">
+                        <div class="rep-icon">🛡️</div>
+                        <h3>Admin Oversight</h3>
+                        <p>Platform administrators can improve ratings over time for consistent good behavior and handle dispute resolution.</p>
+                        <div class="admin-features">
+                            <span class="admin-tag">Rating Adjustments</span>
+                            <span class="admin-tag">Dispute Resolution</span>
+                            <span class="admin-tag">System Overrides</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cta-buttons">
+                    <a href="pages/blacklist.html" class="btn btn-outline">View Blacklist</a>
+                    <a href="pages/debt-collectors.html" class="btn btn-outline">Debt Collectors Directory</a>
+                    <a href="pages/ledger.html" class="btn btn-outline">Sample Ledger</a>
+                </div>
+            </section>
+
+            <!-- Global Support Section -->
+            <section class="global-section">
+                <h2>Operating Across 13 African Countries</h2>
+                <p class="section-subtitle">Local currency support with country-specific offices and contacts</p>
+                
+                <div class="countries-grid">
+                    <div class="country-card">
+                        <span class="fi fi-ke"></span>
+                        <h4>Kenya</h4>
+                        <p class="currency">KSh</p>
+                        <p class="contact">+254 709 219 000</p>
+                        <a href="mailto:kenya@pesewa.com" class="email">kenya@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-ug"></span>
+                        <h4>Uganda</h4>
+                        <p class="currency">UGX</p>
+                        <p class="contact">+256 392 175 546</p>
+                        <a href="mailto:uganda@pesewa.com" class="email">uganda@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-tz"></span>
+                        <h4>Tanzania</h4>
+                        <p class="currency">TZS</p>
+                        <p class="contact">+255 659 073 010</p>
+                        <a href="mailto:tanzania@pesewa.com" class="email">tanzania@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-rw"></span>
+                        <h4>Rwanda</h4>
+                        <p class="currency">RWF</p>
+                        <p class="contact">+250 791 590 801</p>
+                        <a href="mailto:rwanda@pesewa.com" class="email">rwanda@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-cd"></span>
+                        <h4>Congo</h4>
+                        <p class="currency">CDF/USD</p>
+                        <p class="contact">+243 81 000 0000</p>
+                        <a href="mailto:congo@pesewa.com" class="email">congo@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-bi"></span>
+                        <h4>Burundi</h4>
+                        <p class="currency">BIF</p>
+                        <p class="contact">+257 79 000 000</p>
+                        <a href="mailto:burundi@pesewa.com" class="email">burundi@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-ng"></span>
+                        <h4>Nigeria</h4>
+                        <p class="currency">NGN</p>
+                        <p class="contact">+234 800 000 0000</p>
+                        <a href="mailto:nigeria@pesewa.com" class="email">nigeria@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-gh"></span>
+                        <h4>Ghana</h4>
+                        <p class="currency">GHS</p>
+                        <p class="contact">+233 24 000 0000</p>
+                        <a href="mailto:ghana@pesewa.com" class="email">ghana@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-za"></span>
+                        <h4>South Africa</h4>
+                        <p class="currency">ZAR</p>
+                        <p class="contact">+27 11 000 0000</p>
+                        <a href="mailto:southafrica@pesewa.com" class="email">southafrica@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-so"></span>
+                        <h4>Somalia</h4>
+                        <p class="currency">SOS</p>
+                        <p class="contact">+252 63 000 0000</p>
+                        <a href="mailto:somalia@pesewa.com" class="email">somalia@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-ss"></span>
+                        <h4>South Sudan</h4>
+                        <p class="currency">SSP</p>
+                        <p class="contact">+211 977 000 000</p>
+                        <a href="mailto:southsudan@pesewa.com" class="email">southsudan@pesewa.com</a>
+                    </div>
+                    <div class="country-card">
+                        <span class="fi fi-et"></span>
+                        <h4>Ethiopia</h4>
+                        <p class="currency">ETB</p>
+                        <p class="contact">+251 91 000 0000</p>
+                        <a href="mailto:ethiopia@pesewa.com" class="email">ethiopia@pesewa.com</a>
+                    </div>
+                </div>
+                
+                <div class="country-login">
+                    <h3>Country-Specific Login</h3>
+                    <p>Select your country to access local groups and office contacts:</p>
+                    <div class="country-login-selector">
+                        <select id="countryLoginSelect" class="country-dropdown-large">
+                            <option value="">Select your country to login...</option>
+                            <option value="KE">🇰🇪 Kenya - Login to Kenyan Groups</option>
+                            <option value="UG">🇺🇬 Uganda - Login to Ugandan Groups</option>
+                            <option value="TZ">🇹🇿 Tanzania - Login to Tanzanian Groups</option>
+                            <option value="RW">🇷🇼 Rwanda - Login to Rwandan Groups</option>
+                            <option value="GH">🇬🇭 Ghana - Login to Ghanaian Groups</option>
+                            <option value="NG">🇳🇬 Nigeria - Login to Nigerian Groups</option>
+                            <option value="ZA">🇿🇦 South Africa - Login to SA Groups</option>
+                            <option value="ET">🇪🇹 Ethiopia - Login to Ethiopian Groups</option>
+                        </select>
+                        <button class="btn btn-primary" id="countryLoginBtn">Go to Country Dashboard</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section class="comparison-section">
+                <h2>Why Pesewa.com is Revolutionizing Micro-Lending</h2>
+                <p class="section-subtitle">Comparing traditional systems with our trust-based, human-centered approach</p>
+                
+                <div class="comparison-table">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th><strong>Pesewa.com</strong></th>
+                                    <th>Zidisha</th>
+                                    <th>Fuliza (M-Pesa)</th>
+                                    <th>Traditional Chamas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Trust Model</td>
+                                    <td><span class="feature-yes">Human Trust + Referrals</span></td>
+                                    <td><span class="feature-no">Algorithmic Scoring</span></td>
+                                    <td><span class="feature-no">Institutional Credit</span></td>
+                                    <td><span class="feature-partial">Personal Only</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Interest Rate</td>
+                                    <td><span class="feature-yes">10%/week (Fixed, Transparent)</span></td>
+                                    <td><span class="feature-no">5-15% (Variable)</span></td>
+                                    <td><span class="feature-no">Daily Compounding</span></td>
+                                    <td><span class="feature-yes">Varies (Opaque)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Default Rate</td>
+                                    <td><span class="feature-yes">< 2% (Referral Guarantee)</span></td>
+                                    <td><span class="feature-no">8-12%</span></td>
+                                    <td><span class="feature-no">15-20%</span></td>
+                                    <td><span class="feature-partial">5-10%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Disbursement Time</td>
+                                    <td><span class="feature-yes">&lt;10 minutes (Manual Confirm)</span></td>
+                                    <td><span class="feature-no">1-3 days</span></td>
+                                    <td><span class="feature-yes">Instant</span></td>
+                                    <td><span class="feature-partial">Meeting-based</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Group Flexibility</td>
+                                    <td><span class="feature-yes">Up to 4 Groups + Cross-group</span></td>
+                                    <td><span class="feature-no">None</span></td>
+                                    <td><span class="feature-no">None</span></td>
+                                    <td><span class="feature-no">Single Group Only</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Loan Purpose</td>
+                                    <td><span class="feature-yes">10 Specific Utilities</span></td>
+                                    <td><span class="feature-no">General Business</span></td>
+                                    <td><span class="feature-no">General</span></td>
+                                    <td><span class="feature-no">General/Social</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CRB/Blacklist</td>
+                                    <td><span class="feature-yes">Optional (Super Tier Only)</span></td>
+                                    <td><span class="feature-no">Required</span></td>
+                                    <td><span class="feature-no">Required</span></td>
+                                    <td><span class="feature-no">None</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Dual Roles</td>
+                                    <td><span class="feature-yes">Borrower + Lender Same User</span></td>
+                                    <td><span class="feature-no">Lender Only</span></td>
+                                    <td><span class="feature-no">Borrower Only</span></td>
+                                    <td><span class="feature-partial">Limited</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="advantages-section">
+                    <div class="advantage-card primary">
+                        <h3>Pesewa.com Core Advantages</h3>
+                        <ul class="advantage-list">
+                            <li>✓ Human trust model via referrals dramatically reduces defaults</li>
+                            <li>✓ Specific utility lending prevents misuse of funds</li>
+                            <li>✓ Cross-group flexibility for complex cash flow situations</li>
+                            <li>✓ No debt traps with strict 7-day, 10% interest limits</li>
+                            <li>✓ Dual borrower/lender role empowers users financially</li>
+                            <li>✓ No CRB checks for Basic & Premium tiers (privacy protection)</li>
+                            <li>✓ Real-time group chat and ledger updates</li>
+                            <li>✓ Global scalability with local currency and language support</li>
+                        </ul>
+                    </div>
+                    <div class="advantage-card secondary">
+                        <h3>Platform Limitations (By Design)</h3>
+                        <ul class="limitation-list">
+                            <li>⚠ Maximum borrowing limits per tier (safety feature)</li>
+                            <li>⚠ 7-day maximum repayment period (prevents long-term debt)</li>
+                            <li>⚠ Referrals required to join (trust-first approach)</li>
+                            <li>⚠ Manual ledger updates by lenders (human oversight)</li>
+                            <li>⚠ Off-platform transactions (regulatory compliance)</li>
+                            <li>⚠ Max 4 groups per user (prevents overextension)</li>
+                            <li>⚠ Weekly interest only, no compounding (transparency)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PWA Installation Prompt -->
+            <div class="pwa-install-prompt hidden" id="installPrompt">
+                <div class="install-content">
+                    <div class="install-icon">📱</div>
+                    <h3>Install Pesewa.com App</h3>
+                    <p>Get better experience with offline access, push notifications, and app-like interface</p>
+                    <div class="install-buttons">
+                        <button class="btn btn-outline" id="installCancel">Later</button>
+                        <button class="btn btn-primary" id="installConfirm">Install Now</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Main Navigation Footer -->
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="pages/dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="pages/groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Groups</span>
+            </a>
+            <a href="pages/lending.html" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Lend</span>
+            </a>
+            <a href="pages/borrowing.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">Borrow</span>
+            </a>
+            <a href="pages/ledger.html" class="nav-item">
+                <span class="nav-icon">📒</span>
+                <span class="nav-label">Ledger</span>
+            </a>
+        </nav>
+
+        <!-- Global Footer -->
+        <footer class="global-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Pesewa.com</h4>
+                    <p>Trust-based peer-to-peer micro-lending platform for urgent utility needs across Africa.</p>
+                    <div class="footer-logo">₵</div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="pages/dashboard.html">Dashboard</a></li>
+                        <li><a href="pages/groups.html">Groups</a></li>
+                        <li><a href="pages/lending.html">Lend Money</a></li>
+                        <li><a href="pages/borrowing.html">Borrow Money</a></li>
+                        <li><a href="pages/ledger.html">My Ledger</a></li>
+                        <li><a href="pages/blacklist.html">Blacklist</a></li>
+                        <li><a href="pages/debt-collectors.html">Debt Collectors</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Country Offices</h4>
+                    <div class="country-contacts">
+                        <div class="contact-item">
+                            <strong>Kenya:</strong> +254 709 219 000
+                        </div>
+                        <div class="contact-item">
+                            <strong>Ghana:</strong> +233 24 000 0000
+                        </div>
+                        <div class="contact-item">
+                            <strong>Nigeria:</strong> +234 800 000 0000
+                        </div>
+                        <div class="contact-item">
+                            <strong>South Africa:</strong> +27 11 000 0000
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" id="footerPrivacy">Privacy Policy</a></li>
+                        <li><a href="#" id="footerTerms">Terms of Service</a></li>
+                        <li><a href="#" id="footerHelp">Help Center</a></li>
+                        <li><a href="mailto:info@pesewa.com">Contact Us</a></li>
+                    </ul>
+                    <div class="footer-disclaimer">
+                        <p><small>Note: Pesewa.com is a tracking and reputation platform only. All financial transactions occur off-platform between users. We provide trust verification, group management, and reputation systems.</small></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 Pesewa.com - Peer-to-Peer Emergency Micro-Lending Platform. Operating in 13 African countries.</p>
+                <div class="footer-tech">
+                    <span class="tech-tag">PWA</span>
+                    <span class="tech-tag">Firebase</span>
+                    <span class="tech-tag">Real-time</span>
+                    <span class="tech-tag">Offline Support</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal hidden" id="loginModal">
+        <div class="modal-content">
+            <h3>Login to Pesewa.com</h3>
+            <p>Use email/phone + password or OTP</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginIdentifier">Email or Phone Number</label>
+                    <input type="text" id="loginIdentifier" required placeholder="email@example.com or +1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="loginPassword" required>
+                        <button type="button" class="show-password" id="showPassword">👁️</button>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" id="forgotPassword">Forgot Password?</a>
+                </div>
+                <div class="auth-methods">
+                    <button type="button" class="btn btn-outline btn-sm" id="useOTP">Use OTP Instead</button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <div class="modal-footer">
+                <p>New user? <a href="#register">Register here</a></p>
+                <p><small>By logging in, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></small></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="otpModal">
+        <div class="modal-content">
+            <h3>OTP Verification</h3>
+            <p>Enter the 6-digit code sent to your phone</p>
+            <form id="otpForm">
+                <div class="otp-container">
+                    <input type="text" maxlength="1" class="otp-input">
+                    <input type="text" maxlength="1" class="otp-input">
+                    <input type="text" maxlength="1" class="otp-input">
+                    <input type="text" maxlength="1" class="otp-input">
+                    <input type="text" maxlength="1" class="otp-input">
+                    <input type="text" maxlength="1" class="otp-input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Verify OTP</button>
+            </form>
+            <div class="modal-footer">
+                <p>Didn't receive code? <a href="#" id="resendOTP">Resend OTP</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="successModal">
+        <div class="modal-content success">
+            <div class="success-icon">✓</div>
+            <h3>Registration Successful!</h3>
+            <p id="successMessage">Your account has been created successfully. You can now join groups and start borrowing/lending.</p>
+            <div class="success-actions">
+                <button class="btn btn-primary" id="successDashboard">Go to Dashboard</button>
+                <button class="btn btn-outline" id="successClose">Continue Browsing</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="firebaseModal">
+        <div class="modal-content">
+            <h3>Firebase Configuration Required</h3>
+            <p>To enable real-time features, please configure Firebase:</p>
+            <div class="code-block">
+                <pre><code>// Add to app.js
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};</code></pre>
+            </div>
+            <button class="btn btn-primary" id="configureFirebase">Configure Now</button>
+            <button class="btn btn-outline" id="skipFirebase">Skip for Now</button>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator hidden" id="offlineIndicator">
+        <span class="offline-icon">🔌</span>
+        <span>You are currently offline. Some features may be limited.</span>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Main Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>

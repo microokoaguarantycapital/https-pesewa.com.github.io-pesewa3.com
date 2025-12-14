@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups - Pesewa.com</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="../icons/icon-152x152.png">
+    <meta name="theme-color" content="#001F3F">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.11.0/css/flag-icons.min.css">
+    <style>
+        /* Groups-specific styles */
+        .groups-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .group-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .group-stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .group-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .group-type-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .group-type-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--yellow-accent);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .group-type-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--yellow-accent);
+        }
+        
+        .groups-list {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .group-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .group-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--yellow-accent);
+        }
+        
+        .group-info h4 {
+            color: var(--yellow-accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .group-meta {
+            display: flex;
+            gap: 1rem;
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+        
+        .group-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .group-tag {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--yellow-accent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .group-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chat-preview {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chat-messages {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .chat-message {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: var(--border-radius);
+            color: white;
+        }
+        
+        .create-group-form {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin-top: 2rem;
+        }
+        
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .referral-code {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px dashed var(--yellow-accent);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .referral-code .code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--yellow-accent);
+            letter-spacing: 2px;
+            margin: 0.5rem 0;
+        }
+        
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .member-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            color: var(--yellow-accent);
+            font-weight: bold;
+        }
+        
+        .member-rating {
+            color: var(--yellow-accent);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .invite-section {
+            background: rgba(255, 107, 107, 0.05);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .invite-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .invite-form input {
+            flex: 1;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: var(--border-radius);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo">₵</div>
+                <h1>Pesewa<span>.com</span></h1>
+                <div class="country-selector">
+                    <select id="countrySelect" class="country-dropdown">
+                        <option value="GH" selected>🇬🇭 Ghana</option>
+                        <option value="KE">🇰🇪 Kenya</option>
+                        <option value="NG">🇳🇬 Nigeria</option>
+                    </select>
+                    <span id="currentCurrency" class="currency-display">GHS</span>
+                </div>
+            </div>
+            <div class="user-menu">
+                <button class="btn-icon" id="notificationsBtn">
+                    <span class="icon">🔔</span>
+                    <span class="badge">1</span>
+                </button>
+                <div class="user-profile">
+                    <span class="user-avatar">JD</span>
+                    <span class="user-name">John Doe</span>
+                </div>
+                <button class="btn-icon" id="menuBtn">
+                    <span class="icon">☰</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Groups Main Content -->
+        <main class="main-content">
+            <div class="groups-header">
+                <div>
+                    <h2>Groups Management</h2>
+                    <p>Create, join, and manage your lending groups. Max 4 groups per user.</p>
+                </div>
+                <button class="btn btn-primary" id="createGroupBtn">
+                    <span class="icon">+</span> Create New Group
+                </button>
+            </div>
+
+            <!-- Group Stats -->
+            <div class="group-stats">
+                <div class="group-stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Active Groups</div>
+                </div>
+                <div class="group-stat-card">
+                    <div class="stat-value">157</div>
+                    <div class="stat-label">Total Members</div>
+                </div>
+                <div class="group-stat-card">
+                    <div class="stat-value">₵42,500</div>
+                    <div class="stat-label">Group Lending</div>
+                </div>
+                <div class="group-stat-card">
+                    <div class="stat-value">98.5%</div>
+                    <div class="stat-label">Repayment Rate</div>
+                </div>
+            </div>
+
+            <!-- Group Types -->
+            <h3>Group Types</h3>
+            <div class="group-types">
+                <div class="group-type-card">
+                    <div class="group-type-icon">👥</div>
+                    <h4>Community Groups</h4>
+                    <p>Local community members supporting each other</p>
+                    <ul>
+                        <li>Max 1000 members</li>
+                        <li>Referral-only entry</li>
+                        <li>Real-time chat</li>
+                    </ul>
+                </div>
+                <div class="group-type-card">
+                    <div class="group-type-icon">👨‍👩‍👧‍👦</div>
+                    <h4>Family Groups</h4>
+                    <p>Extended family networks</p>
+                    <ul>
+                        <li>Smaller, trusted circles</li>
+                        <li>Flexible terms</li>
+                        <li>No subscription fees</li>
+                    </ul>
+                </div>
+                <div class="group-type-card">
+                    <div class="group-type-icon">💼</div>
+                    <h4>Professional Groups</h4>
+                    <p>Colleagues and business networks</p>
+                    <ul>
+                        <li>Higher lending limits</li>
+                        <li>Structured repayments</li>
+                        <li>Business-focused categories</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- My Groups -->
+            <h3>My Groups</h3>
+            <div class="groups-list">
+                <!-- Group 1 -->
+                <div class="group-card">
+                    <div class="group-info">
+                        <h4>Accra Trust Circle</h4>
+                        <div class="group-meta">
+                            <span>👥 45 members</span>
+                            <span>💰 ₵18,500 total lent</span>
+                            <span>⭐ 4.8/5 rating</span>
+                        </div>
+                        <div class="group-tags">
+                            <span class="group-tag">Premium</span>
+                            <span class="group-tag">Active</span>
+                            <span class="group-tag">Community</span>
+                        </div>
+                        <div class="chat-preview">
+                            <div class="chat-messages">
+                                <div class="chat-message">
+                                    <strong>Kwame:</strong> Has anyone borrowed for electricity today?
+                                </div>
+                                <div class="chat-message">
+                                    <strong>Ama:</strong> I need ₵500 for transport, any lenders available?
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" placeholder="Type your message...">
+                                <button class="btn btn-sm">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-outline btn-sm" onclick="viewGroupDetails(1)">View</button>
+                        <button class="btn btn-sm">Chat</button>
+                        <button class="btn btn-outline btn-sm">Leave</button>
+                    </div>
+                </div>
+
+                <!-- Group 2 -->
+                <div class="group-card">
+                    <div class="group-info">
+                        <h4>Family Support Group</h4>
+                        <div class="group-meta">
+                            <span>👥 12 members</span>
+                            <span>💰 ₵5,200 total lent</span>
+                            <span>⭐ 5.0/5 rating</span>
+                        </div>
+                        <div class="group-tags">
+                            <span class="group-tag">Basic</span>
+                            <span class="group-tag">Family</span>
+                            <span class="group-tag">Trusted</span>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-outline btn-sm" onclick="viewGroupDetails(2)">View</button>
+                        <button class="btn btn-sm">Chat</button>
+                    </div>
+                </div>
+
+                <!-- Group 3 -->
+                <div class="group-card">
+                    <div class="group-info">
+                        <h4>Tech Community Accra</h4>
+                        <div class="group-meta">
+                            <span>👥 100 members</span>
+                            <span>💰 ₵18,800 total lent</span>
+                            <span>⭐ 4.6/5 rating</span>
+                        </div>
+                        <div class="group-tags">
+                            <span class="group-tag">Super</span>
+                            <span class="group-tag">Professional</span>
+                            <span class="group-tag">Active</span>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-outline btn-sm" onclick="viewGroupDetails(3)">View</button>
+                        <button class="btn btn-sm">Chat</button>
+                        <button class="btn btn-outline btn-sm">Leave</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Group Form (Initially hidden) -->
+            <div id="createGroupForm" class="create-group-form hidden">
+                <h3>Create New Group</h3>
+                <form id="groupCreationForm">
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="groupName">Group Name *</label>
+                            <input type="text" id="groupName" required placeholder="e.g., Community Support Group">
+                        </div>
+                        <div class="form-group">
+                            <label for="groupType">Group Type *</label>
+                            <select id="groupType" required>
+                                <option value="">Select type</option>
+                                <option value="community">Community Group</option>
+                                <option value="family">Family Group</option>
+                                <option value="professional">Professional Group</option>
+                                <option value="hybrid">Hybrid Group</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="groupDescription">Group Description</label>
+                            <textarea id="groupDescription" rows="3" placeholder="Describe the purpose of this group"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>Group Rules</h4>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="rules" value="referral" checked>
+                                Referral-only entry (required)
+                            </label>
+                            <label>
+                                <input type="checkbox" name="rules" value="max_4_groups">
+                                Enforce max 4 groups per user
+                            </label>
+                            <label>
+                                <input type="checkbox" name="rules" value="weekly_meeting">
+                                Weekly virtual meeting
+                            </label>
+                            <label>
+                                <input type="checkbox" name="rules" value="credit_check">
+                                Credit check for Super tier
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>Maximum Members</h4>
+                        <div class="form-group">
+                            <input type="range" id="maxMembers" min="5" max="1000" value="100" step="5">
+                            <div class="range-value">
+                                Max: <span id="maxMembersValue">100</span> members (Maximum 1000)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="referral-code">
+                        <p>Referral code for this group:</p>
+                        <div class="code">PESEWA-GH-ACCR-2024</div>
+                        <small>Share this code with people you want to invite</small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideCreateForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Group</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Available Groups to Join -->
+            <h3>Available Groups (Via Referral)</h3>
+            <div class="groups-list">
+                <div class="group-card">
+                    <div class="group-info">
+                        <h4>Kumasi Business Network</h4>
+                        <div class="group-meta">
+                            <span>👥 87 members</span>
+                            <span>💰 ₵25,000 total lent</span>
+                            <span>📍 Kumasi, Ghana</span>
+                        </div>
+                        <div class="group-tags">
+                            <span class="group-tag">Premium</span>
+                            <span class="group-tag">Business</span>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-sm" onclick="requestJoinGroup(1)">Request to Join</button>
+                    </div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-info">
+                        <h4>Nairobi Tech Hub</h4>
+                        <div class="group-meta">
+                            <span>👥 156 members</span>
+                            <span>💰 KSh 450,000 total lent</span>
+                            <span>📍 Nairobi, Kenya</span>
+                        </div>
+                        <div class="group-tags">
+                            <span class="group-tag">Super</span>
+                            <span class="group-tag">Tech</span>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-sm" onclick="requestJoinGroup(2)">Request to Join</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="../index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="groups.html" class="nav-item active">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Groups</span>
+            </a>
+            <a href="lending.html" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Lend</span>
+            </a>
+            <a href="borrowing.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">Borrow</span>
+            </a>
+        </nav>
+
+        <!-- Group Details Modal -->
+        <div class="modal hidden" id="groupDetailsModal">
+            <div class="modal-content">
+                <h3>Group Details</h3>
+                <div id="groupDetailsContent">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="hideModal(document.getElementById('groupDetailsModal'))">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../app.js"></script>
+    <script>
+        // Groups-specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create group button
+            const createGroupBtn = document.getElementById('createGroupBtn');
+            const createGroupForm = document.getElementById('createGroupForm');
+            
+            if (createGroupBtn && createGroupForm) {
+                createGroupBtn.addEventListener('click', function() {
+                    createGroupForm.classList.remove('hidden');
+                    createGroupBtn.classList.add('hidden');
+                    window.scrollTo({ top: createGroupForm.offsetTop - 20, behavior: 'smooth' });
+                });
+            }
+            
+            // Max members slider
+            const maxMembersSlider = document.getElementById('maxMembers');
+            const maxMembersValue = document.getElementById('maxMembersValue');
+            
+            if (maxMembersSlider && maxMembersValue) {
+                maxMembersSlider.addEventListener('input', function() {
+                    maxMembersValue.textContent = this.value;
+                });
+            }
+            
+            // Group creation form
+            const groupCreationForm = document.getElementById('groupCreationForm');
+            if (groupCreationForm) {
+                groupCreationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const groupName = document.getElementById('groupName').value;
+                    const groupType = document.getElementById('groupType').value;
+                    
+                    if (!groupName || !groupType) {
+                        alert('Please fill in all required fields');
+                        return;
+                    }
+                    
+                    // Simulate group creation
+                    alert(`Group "${groupName}" created successfully! Referral code: PESEWA-${Date.now().toString().slice(-6)}`);
+                    
+                    // Reset form
+                    groupCreationForm.reset();
+                    hideCreateForm();
+                });
+            }
+        });
+        
+        function hideCreateForm() {
+            const form = document.getElementById('createGroupForm');
+            const btn = document.getElementById('createGroupBtn');
+            
+            if (form) form.classList.add('hidden');
+            if (btn) btn.classList.remove('hidden');
+        }
+        
+        function viewGroupDetails(groupId) {
+            // This would fetch group details from server in production
+            const groupDetails = {
+                1: {
+                    name: 'Accra Trust Circle',
+                    type: 'Community Group',
+                    members: 45,
+                    totalLent: '₵18,500',
+                    rating: '4.8/5',
+                    created: '2024-01-15',
+                    description: 'A trusted community circle supporting each other with emergency loans.',
+                    rules: ['Referral-only entry', 'Max 4 groups per user', 'Weekly virtual meetings'],
+                    categories: ['All categories supported']
+                },
+                2: {
+                    name: 'Family Support Group',
+                    type: 'Family Group',
+                    members: 12,
+                    totalLent: '₵5,200',
+                    rating: '5.0/5',
+                    created: '2023-11-20',
+                    description: 'Extended family network for mutual support.',
+                    rules: ['Family members only', 'Flexible repayment terms', 'No subscription fees'],
+                    categories: ['Basic categories only']
+                },
+                3: {
+                    name: 'Tech Community Accra',
+                    type: 'Professional Group',
+                    members: 100,
+                    totalLent: '₵18,800',
+                    rating: '4.6/5',
+                    created: '2024-02-10',
+                    description: 'Technology professionals supporting each other with business and personal loans.',
+                    rules: ['Professional verification required', 'Structured repayment plans', 'Business-focused lending'],
+                    categories: ['All categories, tech focus']
+                }
+            };
+            
+            const group = groupDetails[groupId];
+            if (!group) return;
+            
+            const modalContent = document.getElementById('groupDetailsContent');
+            if (modalContent) {
+                modalContent.innerHTML = `
+                    <div class="group-details">
+                        <h4>${group.name}</h4>
+                        <p><strong>Type:</strong> ${group.type}</p>
+                        <p><strong>Members:</strong> ${group.members} / 1000 max</p>
+                        <p><strong>Total Lent:</strong> ${group.totalLent}</p>
+                        <p><strong>Rating:</strong> ⭐ ${group.rating}</p>
+                        <p><strong>Created:</strong> ${group.created}</p>
+                        
+                        <h5>Description</h5>
+                        <p>${group.description}</p>
+                        
+                        <h5>Group Rules</h5>
+                        <ul>
+                            ${group.rules.map(rule => `<li>${rule}</li>`).join('')}
+                        </ul>
+                        
+                        <h5>Supported Categories</h5>
+                        <p>${group.categories}</p>
+                        
+                        <div class="members-grid">
+                            <div class="member-card">
+                                <div class="member-avatar">JD</div>
+                                <div class="member-name">John Doe</div>
+                                <div class="member-role">Admin</div>
+                                <div class="member-rating">⭐ 4.8</div>
+                            </div>
+                            <div class="member-card">
+                                <div class="member-avatar">KA</div>
+                                <div class="member-name">Kwame Addo</div>
+                                <div class="member-role">Member</div>
+                                <div class="member-rating">⭐ 4.9</div>
+                            </div>
+                            <div class="member-card">
+                                <div class="member-avatar">AS</div>
+                                <div class="member-name">Ama Serwaa</div>
+                                <div class="member-role">Member</div>
+                                <div class="member-rating">⭐ 5.0</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            showModal(document.getElementById('groupDetailsModal'));
+        }
+        
+        function requestJoinGroup(groupId) {
+            const groupName = groupId === 1 ? 'Kumasi Business Network' : 'Nairobi Tech Hub';
+            
+            // Show referral input
+            const referralCode = prompt(`To join "${groupName}", please enter your referral code:`);
+            
+            if (referralCode) {
+                // Simulate verification
+                setTimeout(() => {
+                    if (referralCode.length >= 6) {
+                        alert('Join request submitted! The group admin will review your request.');
+                    } else {
+                        alert('Invalid referral code. Please get a valid code from a group member.');
+                    }
+                }, 500);
+            }
+        }
+        
+        function showModal(modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideModal(modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html>
